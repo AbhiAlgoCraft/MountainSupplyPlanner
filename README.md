@@ -69,25 +69,4 @@ The website itself runs in the browser using HTML, CSS, and JavaScript. Browsers
 | `run.bat` | Windows shortcut for opening the website |
 | `.gitignore` | Keeps the local compiled executable out of Git |
 
-## Put the project on GitHub
 
-### Upload using the GitHub website
-
-1. Sign in to GitHub and create a new, empty repository.
-2. In the repository, choose **Add file → Upload files**.
-3. Upload the project files listed above, including `.gitignore`; do not upload local `.exe` files.
-4. Add a commit message such as `Add Mountain Supply Planner` and choose **Commit changes**.
-
-### Push from a terminal
-
-Create an empty GitHub repository first, then open a terminal in this project folder. Replace the URL below with the repository URL GitHub gives you:
-
-```bash
-git add .
-git commit -m "Add Mountain Supply Planner"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
-git push -u origin main
-```
-
-If `origin` is already configured, skip the `git remote add origin` line. GitHub may ask you to sign in or authorize the push.
