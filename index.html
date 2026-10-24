@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mountain Supply Planner</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand-mark">MS</div><div><h1>Mountain Supply Planner</h1><p>Route planning and delivery tracking</p></div><span class="demo-tag">LOGISTICS</span><button class="reset-button" id="resetDemo" type="button">Reset data</button></header>
+  <main>
+    <div class="intro"><strong>Mountain logistics network</strong><span>Plan routes, split shipments, and track deliveries.</span></div>
+    <nav class="tabs" aria-label="Project features">
+      <button class="tab active" data-panel="routesPanel">1 &nbsp; Route map</button>
+      <button class="tab" data-panel="shipmentPanel">2 &nbsp; Create shipment</button>
+      <button class="tab" data-panel="deliveryPanel">3 &nbsp; Vehicle loads & report</button>
+    </nav>
+
+    <section class="panel" id="routesPanel">
+      <div class="panel-heading"><div class="step">1</div><div><h2>Find a route</h2><p>Choose two towns, then block roads to see how the route changes.</p></div></div>
+      <div class="route-form"><label>Starting town<select id="startTown"></select></label><span class="direction">→</span><label>Destination<select id="endTown"></select></label><label>Route method<select id="routeMethod"><option value="dfs">DFS · first route</option><option value="bfs">BFS · fewest roads</option><option value="dijkstra">Dijkstra · shortest distance</option></select></label><button class="button primary" id="findRoute">Find route</button></div>
+      <div class="map-card"><div class="map-heading"><b>Mountain road network</b><span><i class="legend-dot open"></i>Open road &nbsp; <i class="legend-dot blocked"></i>Blocked &nbsp; <i class="legend-dot route"></i>Route found</span></div><svg id="townMap" viewBox="0 0 760 300" role="img" aria-label="Mountain towns and connecting roads"></svg></div>
+      <div class="route-options"><div><b>Road controls</b><small>Select any road to block or reopen it.</small></div><div id="roadControls" class="road-controls"></div></div>
+      <div class="route-output"><div class="result-card"><div class="result-label">ROUTE RESULT</div><div id="routeResult" class="route-result" aria-live="polite"></div></div><div class="tree-card"><div class="result-label" id="visualizationTitle">DFS TREE SIMULATION</div><div id="dfsOnly"><p class="small-note">The full tree stays visible. The orange highlight follows DFS as it explores and backtracks.</p><div class="tree-toolbar"><button class="small-button" id="playDfs" type="button">▶ Play</button><button class="small-button" id="stepDfs" type="button">Next step</button><button class="small-button" id="restartDfs" type="button">Restart</button><span id="dfsProgress" class="muted">Press Play to begin</span></div><div class="tree-legend"><span><i class="key-start"></i>Start</span><span><i class="key-current"></i>Current step</span><span><i class="key-route"></i>Route</span><span><i class="key-dead"></i>Backtracked</span></div><div id="searchTree" class="tree-canvas" aria-live="polite"></div></div><div id="algorithmHelp" class="algorithm-help" hidden></div></div></div>
+    </section>
+
+    <section class="panel hidden" id="shipmentPanel">
+      <div class="panel-heading"><div class="step">2</div><div><h2>Create a split shipment</h2><p>Give each vehicle part of the supply. The amounts must add up to the total.</p></div></div>
+      <form id="shipmentForm" class="shipment-form">
+        <label>Origin<select name="origin" id="shipmentOrigin"></select></label><label>Destination<select name="destination" id="shipmentDestination"></select></label>
+        <label>Supply name<input name="supply" value="Food boxes" maxlength="40" required></label><label>Total quantity<input name="total" type="number" min="1" step="1" value="24" required></label>
+        <label>Unit<select name="unit"><option>boxes</option><option>kits</option><option>tons</option></select></label>
+        <label class="wide">Vehicle load amounts<input name="loads" value="10, 8, 6" required><small>Separate amounts with commas. Example: 10, 8, 6</small></label>
+        <button class="button primary wide" type="submit">Create shipment</button>
+      </form>
+      <div class="shipment-simulator"><div class="simulation-heading"><div><b>Shipment loading simulation</b><small>See how the supply is divided among the vehicles.</small></div><button class="small-button" id="playShipmentSim" type="button">▶ Simulate loading</button></div><div id="shipmentViz" class="shipment-viz">Enter shipment values, then start the simulation.</div></div>
+      <div id="shipmentResult" class="shipment-result" aria-live="polite">A sample shipment is already available in the delivery report.</div>
+      <div class="simple-note">Each new load gets its own ID, so its received quantity can be recorded separately.</div>
+    </section>
+
+    <section class="panel hidden" id="deliveryPanel">
+      <div class="panel-heading"><div class="step">3</div><div><h2>Record vehicle receipts</h2><p>Enter the received quantity for a specific vehicle load.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>LOAD ID</th><th>SHIPMENT & ROUTE</th><th>VEHICLE</th><th>PLANNED</th><th>RECEIVED</th><th>STATUS</th><th></th></tr></thead><tbody id="loadRows"></tbody></table></div>
+      <div class="panel-heading report-heading"><div class="step report-step">4</div><div><h2>Missing or short delivery report</h2><p>Compare planned quantities with receipts entered for individual vehicles.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>SHIPMENT</th><th>SUPPLY</th><th>PLANNED</th><th>RECEIVED</th><th>MISSING / SHORT</th><th>STATUS</th></tr></thead><tbody id="reportRows"></tbody></table></div>
+      <div class="simple-note">“Not received” means no receipt was entered. “Short” means a receipt was entered but the quantity was below the planned load.</div>
+    </section>
+    <footer>Mountain Supply Planner · Route and delivery management</footer>
+  </main>
+  <dialog id="receiptDialog"><form id="receiptForm"><div class="dialog-title"><div><h2>Record received quantity</h2><p id="receiptContext"></p></div><button type="button" class="close" id="closeDialog" aria-label="Close">×</button></div><input name="loadId" type="hidden"><label>Quantity received<input name="quantity" type="number" min="0" step="1" required></label><label>Receipt reference<input name="reference" maxlength="30" placeholder="Example: RCV-1001-01" required></label><button class="button primary" type="submit">Save receipt</button></form></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
